@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+@MainActor
 open class InfoBarViewModel<InfoBarContent>: ObservableObject {
     public let content: InfoBarContent
     @Published public var isMessageShown = false

@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@gitlab.cleevio.cz:cleevio-dev-ios/CleevioUI.git",
       "state" : {
-        "revision" : "28f5b6fecf5b326edb0937b2e797b46ba49c37aa",
-        "version" : "2.3.0"
+        "revision" : "2729684921e9d28fe531a453395d430a65f0cb23",
+        "version" : "3.0.1"
       }
     },
     {
