@@ -11,7 +11,7 @@ import SwiftUI
 import CleevioCore
 
 #if canImport(UIKit)
-open class InfoBarCoordinator<InfoBarView: View, InfoBarContent>: RouterCoordinator {
+open class InfoBarCoordinator<InfoBarView: View, InfoBarContent>: ResponseRouterCoordinator {
     let frame: CGRect
     let content: InfoBarContent
     let viewModel: InfoBarViewModel<InfoBarContent>

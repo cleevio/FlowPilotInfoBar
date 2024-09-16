@@ -13,33 +13,33 @@ let swiftSettings: [SwiftSetting] = [
 ]
 
 let package = Package(
-    name: "CleevioInfoBar",
+    name: "FlowPilotInfoBar",
     platforms: [.iOS(.v13)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "CleevioInfoBar",
-            targets: ["CleevioInfoBar"]),
+            name: "FlowPilotInfoBar",
+            targets: ["FlowPilotInfoBar"]),
     ],
     dependencies: [
-        .package(url: "git@gitlab.cleevio.cz:cleevio-dev-ios/CleevioCore.git", .upToNextMajor(from: "2.0.0")),
-        .package(url: "git@gitlab.cleevio.cz:cleevio-dev-ios/CleevioRouters.git", .upToNextMajor(from: "2.2.0-dev1")),
-        .package(url: "git@gitlab.cleevio.cz:cleevio-dev-ios/CleevioUI.git", (Version(2, 0, 0))..<(Version(4, 0, 0)))
+        .package(url: "https://github.com/cleevio/CleevioCore.git", .upToNextMajor(from: "2.0.0")),
+        .package(url: "https://github.com/cleevio/FlowPilot.git", .upToNextMajor(from: Version(3, 0, 0))),
+        .package(url: "https://github.com/cleevio/CleevioUI.git", (Version(2, 0, 0))..<(Version(4, 0, 0)))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "CleevioInfoBar",
+            name: "FlowPilotInfoBar",
             dependencies: [
                 "CleevioCore",
-                "CleevioRouters",
+                "FlowPilot",
                 "CleevioUI"
             ],
             swiftSettings: swiftSettings
         ),
         .testTarget(
-            name: "CleevioInfoBarTests",
-            dependencies: ["CleevioInfoBar"]),
+            name: "FlowPilotInfoBarTests",
+            dependencies: ["FlowPilotInfoBar"]),
     ]
 )
