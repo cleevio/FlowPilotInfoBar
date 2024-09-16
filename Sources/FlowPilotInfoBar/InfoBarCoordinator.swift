@@ -6,12 +6,12 @@
 //
 
 import Foundation
-import CleevioRouters
+import FlowPilot
 import SwiftUI
 import CleevioCore
 
 #if canImport(UIKit)
-open class InfoBarCoordinator<InfoBarView: View, InfoBarContent>: ResponseRouterCoordinator {
+open class InfoBarCoordinator<InfoBarView: View, InfoBarContent>: ResponseRouterCoordinator<Void> {
     let frame: CGRect
     let content: InfoBarContent
     let viewModel: InfoBarViewModel<InfoBarContent>
@@ -48,30 +48,12 @@ open class InfoBarCoordinator<InfoBarView: View, InfoBarContent>: ResponseRouter
             .filter { !$0 }
             .delay(for: 0.1, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
+                self?.response(with: ())
                 self?.dismiss()
             })
             .store(in: cancelBag)
 
         present(viewController, animated: animated)
-    }
-
-    open func startAndWaitForDismiss() async {
-        start()
-        var shouldCallContinuation = true
-
-        await withCheckedContinuation { continuation in
-            viewModel.$isMessageShown
-                .dropFirst()
-                .filter { !$0 }
-                .delay(for: 0.1, scheduler: DispatchQueue.main)
-                .sink(receiveValue: { _ in
-                    if shouldCallContinuation {
-                        shouldCallContinuation = false
-                        continuation.resume()
-                    }
-                })
-                .store(in: cancelBag)
-        }
     }
 }
 #endif
