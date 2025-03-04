@@ -10,24 +10,16 @@ import CleevioUI
 
 #if canImport(UIKit)
 import UIKit
+
+struct AlertWindowRouterCouldNotBeConstructed: Error { }
+
 extension UIWindow {
-    func alertWindowRouter() -> (InfoBarWindowRouter, frame: CGRect, topPadding: CGFloat)? {
-        guard let topViewController = topViewController,
-              let windowScene = windowScene,
-              let frame = windowScene.statusBarManager?.statusBarFrame
-        else {            
-            return nil
+    func alertWindowRouter(topPadding: CalculatePaddingClosure) throws -> (InfoBarWindowRouter, frame: CGRect, topPadding: CGFloat) {
+        guard let windowScene else {
+            throw AlertWindowRouterCouldNotBeConstructed()
         }
 
-        var topPadding: CGFloat {
-            if let viewController = topViewController.navigationController, !viewController.isNavigationBarHidden {
-                return viewController.navigationBar.frame.origin.y + viewController.navigationBar.frame.height
-            } else {
-                return frame.height
-            }
-        }
-
-        return (InfoBarWindowRouter(windowScene: windowScene), frame: frame, topPadding: topPadding)
+        return try (InfoBarWindowRouter(windowScene: windowScene), frame: self.frame, topPadding: topPadding(self))
     }
 }
 #endif

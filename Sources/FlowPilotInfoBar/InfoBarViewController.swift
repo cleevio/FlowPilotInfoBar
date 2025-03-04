@@ -6,24 +6,40 @@
 //
 
 import Foundation
+import CleevioCore
 #if canImport(UIKit)
 import CleevioUI
 import UIKit
 import SwiftUI
+import Combine
 
 public final class InfoBarViewController<InfoBarView: View>: UIViewController {
     let serverErrorView: ClearBackgroundUIHostingController<InfoBarView>
     let frame: CGRect
     var onDismiss: (() -> Void)?
+    private var topPadding: CGFloat
+    private var topConstraint: NSLayoutConstraint!
+    private var dismiss: AnyPublisher<Void, Never>
+    private let cancelBag = CancelBag()
 
-    public override var preferredStatusBarStyle: UIStatusBarStyle {
-        .lightContent
+    public override var prefersStatusBarHidden: Bool {
+        return UIApplication.shared.windows.first?.rootViewController?.prefersStatusBarHidden ?? false
     }
 
-    public init(view: InfoBarView,
-         frame: CGRect) {
+    public override var preferredStatusBarStyle: UIStatusBarStyle {
+        return UIApplication.shared.windows.first?.rootViewController?.preferredStatusBarStyle ?? .default
+    }
+
+    public init(
+        view: InfoBarView,
+        frame: CGRect,
+        topPadding: CGFloat,
+        dismiss: AnyPublisher<Void, Never>
+    ) {
         self.frame = frame
+        self.topPadding = topPadding
         self.serverErrorView = .init(rootView: view)
+        self.dismiss = dismiss
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -38,17 +54,65 @@ public final class InfoBarViewController<InfoBarView: View>: UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
 
+        if #available(iOS 16.0, *) {
+            serverErrorView.sizingOptions = .intrinsicContentSize
+        }
+
         addChild(serverErrorView)
         view.addSubview(serverErrorView.view)
 
         serverErrorView.view.translatesAutoresizingMaskIntoConstraints = false
+        topConstraint = serverErrorView.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -frame.height)
 
         NSLayoutConstraint.activate([
-            serverErrorView.view.topAnchor.constraint(equalTo: view.topAnchor),
-            serverErrorView.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            serverErrorView.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            serverErrorView.view.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor)
+            topConstraint,
+            serverErrorView.view.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor),
+            serverErrorView.view.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor),
+            serverErrorView.view.heightAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.heightAnchor, constant: -topPadding)
         ])
+
+        dismiss
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] in
+                self?.dismissView()
+            })
+            .store(in: cancelBag)
+    }
+
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        DispatchQueue.main.async {
+            self.showAlertView()
+        }
+    }
+
+    public func showAlertView() {
+        topConstraint.constant = topPadding
+
+        // **Animate Into Position Using Transform**
+        UIView.animate(
+            withDuration: 1/3,
+            delay: 0,
+            options: .curveEaseOut
+        ) {
+            self.view.setNeedsLayout()
+            self.view.layoutIfNeeded()
+        }
+    }
+
+    public func dismissView() {
+        topConstraint.constant = -frame.height
+        UIView.animate(
+            withDuration: 1/3,
+            delay: 0,
+            options: .curveEaseIn
+        ) {
+            self.view.setNeedsLayout()
+            self.view.layoutIfNeeded()
+        } completion: { _ in
+            self.onDismiss?()
+        }
     }
 }
 #endif

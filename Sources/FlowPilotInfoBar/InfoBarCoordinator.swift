@@ -11,47 +11,62 @@ import SwiftUI
 import CleevioCore
 
 #if canImport(UIKit)
+
+public let defaultInfoBarTopPadding: CalculatePaddingClosure = { window in
+    let navigationController: UINavigationController? = window.topViewController?.navigationController ?? window.topViewController?.tabBarController.flatMap { $0.selectedViewController as? UINavigationController }
+
+    if let navigationController, !navigationController.isNavigationBarHidden {
+        return navigationController.navigationBar.frame.height + 8
+    }
+
+    return 8
+}
+
+public typealias CalculatePaddingClosure = (UIWindow) throws -> CGFloat
 open class InfoBarCoordinator<InfoBarView: View, InfoBarContent>: ResponseRouterCoordinator<Void> {
     let frame: CGRect
     let content: InfoBarContent
     let viewModel: InfoBarViewModel<InfoBarContent>
     let viewBuilder: InfoBarViewModelViewBuilder<InfoBarView, InfoBarContent>
-    let cancelBag = CancelBag()
 
-    public init?(on window: UIWindow,
+    public init(
+        on window: UIWindow,
                  content: InfoBarContent,
                  viewModel: InfoBarViewModel<InfoBarContent>,
-                 viewBuilder: @escaping InfoBarViewModelViewBuilder<InfoBarView, InfoBarContent>) {
-        guard let (router, frame, topPadding) = window.alertWindowRouter() else {
-            return nil
-        }
+                 calculateTopPadding: CalculatePaddingClosure = defaultInfoBarTopPadding,
+        viewBuilder: @escaping InfoBarViewModelViewBuilder<InfoBarView, InfoBarContent>
+    ) throws {
+        let (router, frame, topPadding) = try window.alertWindowRouter(topPadding: calculateTopPadding)
 
         self.viewBuilder = viewBuilder
         self.viewModel = viewModel
         self.content = content
 
-        viewModel.topPadding = topPadding + 32
+        viewModel.topPadding = topPadding
         self.frame = frame
         super.init(router: router)
     }
 
     open override func start(animated: Bool = true) {
         let view = viewBuilder(viewModel)
+        let dismissPublisher = viewModel.$isMessageShown
+            .dropFirst()
+            .filter { !$0 }
+            .first()
+            .map { _ in }
+            .eraseToAnyPublisher()
 
         let viewController = InfoBarViewController(
             view: view,
-            frame: frame
+            frame: frame,
+            topPadding: viewModel.topPadding,
+            dismiss: dismissPublisher
         )
 
-        viewModel.$isMessageShown
-            .dropFirst()
-            .filter { !$0 }
-            .delay(for: 0.1, scheduler: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] _ in
-                self?.response(with: ())
-                self?.dismiss()
-            })
-            .store(in: cancelBag)
+        viewController.onDismiss = { [weak self] in
+            self?.dismiss()
+            self?.response(with: ())
+        }
 
         present(viewController, animated: animated)
     }
