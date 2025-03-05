@@ -78,7 +78,12 @@ struct DragModifier: ViewModifier {
                     .onChanged { value in
                         isDraggingActive = true
                         withPreferredAnimation(.linear) {
-                            dragPopup = value.translation
+                            let height: CGFloat = if value.translation.height < 9 {
+                                value.translation.height
+                            } else {
+                               3*sqrt(value.translation.height)
+                            }
+                            dragPopup = .init(width: 0, height: height)
                         }
                     }
                     // Workaround: onEnded is not called
@@ -100,8 +105,9 @@ struct DragModifier: ViewModifier {
                 withPreferredAnimation(.linear) {
                     if dragPopup.height < -50 {
                         onDismiss()
+                    } else {
+                        dragPopup = .zero
                     }
-                    dragPopup = .zero
                 }
             }
     }
