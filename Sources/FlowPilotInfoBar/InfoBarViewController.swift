@@ -66,8 +66,8 @@ public final class InfoBarViewController<InfoBarView: View>: UIViewController {
 
         NSLayoutConstraint.activate([
             topConstraint,
-            serverErrorView.view.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor),
-            serverErrorView.view.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor),
+            serverErrorView.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            serverErrorView.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             serverErrorView.view.heightAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.heightAnchor, constant: -topPadding)
         ])
 
