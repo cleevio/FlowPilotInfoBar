@@ -74,7 +74,7 @@ struct DragModifier: ViewModifier {
         content
             .offset(y: dragPopup.height)
             .gesture(
-                DragGesture(minimumDistance: 20) // Set minimum distance, so small drags are ignored
+                DragGesture(minimumDistance: 8) // Set minimum distance, so small drags are ignored
                     .onChanged { value in
                         isDraggingActive = true
                         withPreferredAnimation(.linear) {
