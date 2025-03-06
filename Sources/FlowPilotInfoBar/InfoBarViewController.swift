@@ -90,28 +90,38 @@ public final class InfoBarViewController<InfoBarView: View>: UIViewController {
     public func showAlertView() {
         topConstraint.constant = topPadding
 
-        // **Animate Into Position Using Transform**
-        UIView.animate(
-            withDuration: 1/3,
-            delay: 0,
-            options: .curveEaseOut
-        ) {
+        if UIAccessibility.isReduceMotionEnabled {
             self.view.setNeedsLayout()
             self.view.layoutIfNeeded()
+        } else {
+            UIView.animate(
+                withDuration: 1/3,
+                delay: 0,
+                options: .curveEaseOut
+            ) {
+                self.view.setNeedsLayout()
+                self.view.layoutIfNeeded()
+            }
         }
     }
 
     public func dismissView() {
         topConstraint.constant = -frame.height
-        UIView.animate(
-            withDuration: 1/3,
-            delay: 0,
-            options: .curveEaseIn
-        ) {
+        if UIAccessibility.isReduceMotionEnabled {
             self.view.setNeedsLayout()
             self.view.layoutIfNeeded()
-        } completion: { _ in
             self.onDismiss?()
+        } else {
+            UIView.animate(
+                withDuration: 1/3,
+                delay: 0,
+                options: .curveEaseIn
+            ) {
+                self.view.setNeedsLayout()
+                self.view.layoutIfNeeded()
+            } completion: { _ in
+                self.onDismiss?()
+            }
         }
     }
 }
