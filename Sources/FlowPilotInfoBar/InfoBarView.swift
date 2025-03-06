@@ -74,7 +74,7 @@ struct DragModifier: ViewModifier {
         content
             .offset(y: dragPopup.height)
             .gesture(
-                DragGesture(minimumDistance: 30) // Set minimum distance, so small drags are ignored
+                DragGesture(minimumDistance: 20) // Set minimum distance, so small drags are ignored
                     .onChanged { value in
                         isDraggingActive = true
                         withPreferredAnimation(.linear) {
@@ -103,9 +103,10 @@ struct DragModifier: ViewModifier {
             .onChange(of: isDraggingActive) { isDragging in
                 guard !isDragging else { return }
                 withPreferredAnimation(.linear) {
-                    if dragPopup.height < -50 {
+                    if dragPopup.height < -40 {
                         onDismiss()
                     } else {
+                        print("Setting up dragpopup to zero")
                         dragPopup = .zero
                     }
                 }
