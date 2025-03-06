@@ -10,28 +10,20 @@ import SwiftUI
 
 public struct InfoBarView<T: View, InfoBarContent>: View {
     @ObservedObject private var viewModel: InfoBarViewModel<InfoBarContent>
-    let transition: AnyTransition
-    let animation: Animation
     let view: T
 
-    public init(viewModel: InfoBarViewModel<InfoBarContent>,
-         viewBuilder: InfoBarViewModelViewBuilder<T, InfoBarContent>,
-         transition: AnyTransition = .move(edge: .top),
-         animation: Animation = .interactiveSpring(response: 0.5, dampingFraction: 0.8)) {
-        self.transition = transition
-        self.animation = animation
+    public init(
+        viewModel: InfoBarViewModel<InfoBarContent>,
+        viewBuilder: InfoBarViewModelViewBuilder<T, InfoBarContent>
+    ) {
         self.viewModel = viewModel
-        self.view = viewBuilder(viewModel)
+        self.view = viewBuilder(
+            viewModel
+        )
     }
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            Color.clear
-                .allowsHitTesting(false)
-
-            content
-        }
-        .animation(animation, value: viewModel.isMessageShown)
+        content
     }
 
     @ViewBuilder
@@ -106,7 +98,6 @@ struct DragModifier: ViewModifier {
                     if dragPopup.height < -40 {
                         onDismiss()
                     } else {
-                        print("Setting up dragpopup to zero")
                         dragPopup = .zero
                     }
                 }
