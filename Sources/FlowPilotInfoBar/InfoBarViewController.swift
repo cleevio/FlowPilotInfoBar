@@ -13,14 +13,12 @@ import UIKit
 import SwiftUI
 import Combine
 
-public final class InfoBarViewController<InfoBarView: View>: UIViewController {
-    let serverErrorView: ClearBackgroundUIHostingController<InfoBarView>
+public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIViewController {
+    let infoBarViewController: ClearBackgroundUIHostingController<InfoBarView>
     let frame: CGRect
     var onDismiss: (() -> Void)?
-    private var topPadding: CGFloat
-    private var topConstraint: NSLayoutConstraint!
-    private var dismiss: AnyPublisher<Void, Never>
-    private let cancelBag = CancelBag()
+    private let viewModel: InfoBarViewModel<InfoBarContent>
+    private var positionContstraint: NSLayoutConstraint!
 
     public override var prefersStatusBarHidden: Bool {
         return UIApplication.shared.windows.first?.rootViewController?.prefersStatusBarHidden ?? false
@@ -33,13 +31,11 @@ public final class InfoBarViewController<InfoBarView: View>: UIViewController {
     public init(
         view: InfoBarView,
         frame: CGRect,
-        topPadding: CGFloat,
-        dismiss: AnyPublisher<Void, Never>
+        viewModel: InfoBarViewModel<InfoBarContent>
     ) {
         self.frame = frame
-        self.topPadding = topPadding
-        self.serverErrorView = .init(rootView: view)
-        self.dismiss = dismiss
+        self.viewModel = viewModel
+        self.infoBarViewController = .init(rootView: view)
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -55,28 +51,19 @@ public final class InfoBarViewController<InfoBarView: View>: UIViewController {
         super.viewDidLoad()
 
         if #available(iOS 16.0, *) {
-            serverErrorView.sizingOptions = .intrinsicContentSize
+            infoBarViewController.sizingOptions = .intrinsicContentSize
         }
 
-        addChild(serverErrorView)
-        view.addSubview(serverErrorView.view)
+        addChild(infoBarViewController)
+        view.addSubview(infoBarViewController.view)
 
-        serverErrorView.view.translatesAutoresizingMaskIntoConstraints = false
-        topConstraint = serverErrorView.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -frame.height)
+        infoBarViewController.view.translatesAutoresizingMaskIntoConstraints = false
+        let constraints = viewModel.constraints(infoView: infoBarViewController.view, on: view, frame: frame)
+        positionContstraint = constraints.positionConstraint
 
-        NSLayoutConstraint.activate([
-            topConstraint,
-            serverErrorView.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            serverErrorView.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            serverErrorView.view.heightAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.heightAnchor, constant: -topPadding)
-        ])
-
-        dismiss
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] in
-                self?.dismissView()
-            })
-            .store(in: cancelBag)
+        NSLayoutConstraint.activate(
+            [constraints.positionConstraint] + constraints.otherConstraints
+        )
     }
 
     public override func viewDidAppear(_ animated: Bool) {
@@ -88,7 +75,7 @@ public final class InfoBarViewController<InfoBarView: View>: UIViewController {
     }
 
     public func showAlertView() {
-        topConstraint.constant = topPadding
+        positionContstraint.constant = viewModel.positionConstrainConstant
 
         if UIAccessibility.isReduceMotionEnabled {
             self.view.setNeedsLayout()
@@ -106,7 +93,7 @@ public final class InfoBarViewController<InfoBarView: View>: UIViewController {
     }
 
     public func dismissView() {
-        topConstraint.constant = -frame.height
+        positionContstraint.constant = viewModel.notVisiblePositionConstraintConstant(from: frame)
         if UIAccessibility.isReduceMotionEnabled {
             self.view.setNeedsLayout()
             self.view.layoutIfNeeded()

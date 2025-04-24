@@ -17,9 +17,7 @@ public struct InfoBarView<T: View, InfoBarContent>: View {
         viewBuilder: InfoBarViewModelViewBuilder<T, InfoBarContent>
     ) {
         self.viewModel = viewModel
-        self.view = viewBuilder(
-            viewModel
-        )
+        self.view = viewBuilder()
     }
 
     public var body: some View {

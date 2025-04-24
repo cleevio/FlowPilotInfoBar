@@ -25,43 +25,43 @@ public let defaultInfoBarTopPadding: CalculatePaddingClosure = { window in
 public typealias CalculatePaddingClosure = (UIWindow) throws -> CGFloat
 open class InfoBarCoordinator<InfoBarView: View, InfoBarContent>: ResponseRouterCoordinator<Void> {
     let frame: CGRect
-    let content: InfoBarContent
     let viewModel: InfoBarViewModel<InfoBarContent>
-    let viewBuilder: InfoBarViewModelViewBuilder<InfoBarView, InfoBarContent>
+    let viewBuilder: () -> InfoBarView
+    private let cancelBag = CancelBag()
 
     public init(
         on window: UIWindow,
-                 content: InfoBarContent,
-                 viewModel: InfoBarViewModel<InfoBarContent>,
-                 calculateTopPadding: CalculatePaddingClosure = defaultInfoBarTopPadding,
-        viewBuilder: @escaping InfoBarViewModelViewBuilder<InfoBarView, InfoBarContent>
+        viewModel: InfoBarViewModel<InfoBarContent>,
+        @ViewBuilder viewBuilder: @escaping () -> InfoBarView
     ) throws {
-        let (router, frame, topPadding) = try window.alertWindowRouter(topPadding: calculateTopPadding)
+        let (router, frame, positionConstrainConstant) = try window.alertWindowRouter(calculatedPositionContraintConstant: viewModel.calculatedPositionContraintConstant(window:))
 
         self.viewBuilder = viewBuilder
         self.viewModel = viewModel
-        self.content = content
 
-        viewModel.topPadding = topPadding
+        viewModel.positionConstrainConstant = positionConstrainConstant
         self.frame = frame
         super.init(router: router)
     }
 
     open override func start(animated: Bool = true) {
-        let view = viewBuilder(viewModel)
-        let dismissPublisher = viewModel.$isMessageShown
-            .dropFirst()
-            .filter { !$0 }
-            .first()
-            .map { _ in }
-            .eraseToAnyPublisher()
+        let view = viewBuilder()
 
         let viewController = InfoBarViewController(
             view: view,
             frame: frame,
-            topPadding: viewModel.topPadding,
-            dismiss: dismissPublisher
+            viewModel: viewModel
         )
+
+        viewModel.$isMessageShown
+            .dropFirst()
+            .filter { !$0 }
+            .first()
+            .map { _ in }
+            .sink(receiveValue: { [viewController] _ in
+                viewController.dismissView()
+            })
+            .store(in: cancelBag)
 
         viewController.onDismiss = { [weak self] in
             self?.dismiss()
