@@ -8,4 +8,4 @@
 import Foundation
 import SwiftUI
 
-public typealias InfoBarViewModelViewBuilder<InfoBarView: View, InfoBarContent> = ( InfoBarViewModel<InfoBarContent>) -> (InfoBarView)
+public typealias InfoBarViewModelViewBuilder<InfoBarView: View, InfoBarContent> = () -> (InfoBarView)

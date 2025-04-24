@@ -14,12 +14,12 @@ import UIKit
 struct AlertWindowRouterCouldNotBeConstructed: Error { }
 
 extension UIWindow {
-    func alertWindowRouter(topPadding: CalculatePaddingClosure) throws -> (InfoBarWindowRouter, frame: CGRect, topPadding: CGFloat) {
+    func alertWindowRouter(calculatedPositionContraintConstant: CalculatePaddingClosure) throws -> (InfoBarWindowRouter, frame: CGRect, topPadding: CGFloat) {
         guard let windowScene else {
             throw AlertWindowRouterCouldNotBeConstructed()
         }
 
-        return try (InfoBarWindowRouter(windowScene: windowScene), frame: self.frame, topPadding: topPadding(self))
+        return try (InfoBarWindowRouter(windowScene: windowScene), frame: self.frame, topPadding: calculatedPositionContraintConstant(self))
     }
 }
 #endif
