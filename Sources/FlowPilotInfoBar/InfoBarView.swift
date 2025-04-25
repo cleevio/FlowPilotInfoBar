@@ -8,10 +8,30 @@
 import Foundation
 import SwiftUI
 
+/// A SwiftUI view for displaying an info bar with various content types
+/// 
+/// The view provides drag-to-dismiss functionality and adapts to different iOS versions
+/// 
+/// Example:
+/// ```swift
+/// InfoBarView(viewModel: viewModel) {
+///     HStack {
+///         Image(systemName: "info.circle")
+///         Text("Important notification")
+///     }
+///     .padding()
+///     .background(Color.blue)
+///     .foregroundColor(.white)
+/// }
+/// ```
 public struct InfoBarView<T: View, InfoBarContent>: View {
     @ObservedObject private var viewModel: InfoBarViewModel<InfoBarContent>
     let view: T
 
+    /// Initializes a new info bar view with the given view model and content builder
+    /// - Parameters:
+    ///   - viewModel: The view model that controls the info bar's state
+    ///   - viewBuilder: A closure that returns the view to display in the info bar
     public init(
         viewModel: InfoBarViewModel<InfoBarContent>,
         viewBuilder: InfoBarViewModelViewBuilder<T, InfoBarContent>
@@ -53,11 +73,21 @@ public struct InfoBarView<T: View, InfoBarContent>: View {
 }
 
 @available(iOS 14.0, *)
+/// A view modifier that adds drag-to-dismiss functionality
+/// 
+/// The modifier tracks drag gestures and animates the view accordingly,
+/// dismissing it if dragged far enough in the negative y direction
 struct DragModifier: ViewModifier {
+    /// Closure called when the view should be dismissed due to dragging
     var onDismiss: () -> Void
 
+    /// The current offset of the view due to dragging
     @State private var dragPopup = CGSize.zero
+    
+    /// Indicates whether a drag gesture is currently active
     @GestureState private var isDragGestureActive: Bool = false
+    
+    /// Indicates whether dragging is active (used to handle gesture cancellation)
     @State private var isDraggingActive: Bool = false
 
     func body(content: Content) -> some View {
@@ -103,6 +133,11 @@ struct DragModifier: ViewModifier {
     }
 }
 
+/// Performs an action with animation, respecting accessibility settings for reduced motion
+/// - Parameters:
+///   - animation: The animation to use when reduced motion is not enabled
+///   - body: The action to perform
+/// - Returns: The result of the action
 @discardableResult
 @MainActor
 public func withPreferredAnimation<Result>(_ animation: Animation? = .default, _ body: () throws -> Result) rethrows -> Result {

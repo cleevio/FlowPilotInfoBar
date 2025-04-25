@@ -11,24 +11,47 @@ import SwiftUI
 import CleevioCore
 
 #if canImport(UIKit)
-
-public let defaultInfoBarTopPadding: CalculatePaddingClosure = { window in
-    let navigationController: UINavigationController? = window.topViewController?.navigationController ?? window.topViewController?.tabBarController.flatMap { $0.selectedViewController as? UINavigationController }
-
-    if let navigationController, !navigationController.isNavigationBarHidden {
-        return navigationController.navigationBar.frame.height + 8
-    }
-
-    return 8
-}
-
-public typealias CalculatePaddingClosure = (UIWindow) throws -> CGFloat
+/// A coordinator that manages the lifecycle of an info bar in the application flow
+/// 
+/// This coordinator integrates with FlowPilot to handle the presentation and dismissal
+/// of info bars within the application's navigation flow
+/// 
+/// Example:
+/// ```swift
+/// let viewModel = InfoBarViewModel(content: "Alert message")
+/// 
+/// let coordinator = try InfoBarCoordinator(
+///     on: window,
+///     viewModel: viewModel
+/// ) {
+///     InfoBarView(viewModel: viewModel) {
+///         Text("Alert message")
+///             .padding()
+///             .background(Color.blue)
+///     }
+/// }
+/// 
+/// navigator.navigate(to: coordinator)
+/// ```
 open class InfoBarCoordinator<InfoBarView: View, InfoBarContent>: ResponseRouterCoordinator<Void> {
+    /// The frame in which the info bar will be displayed
     let frame: CGRect
+    
+    /// The view model that controls the info bar's state
     let viewModel: InfoBarViewModel<InfoBarContent>
+    
+    /// A closure that builds the SwiftUI view to display in the info bar
     let viewBuilder: () -> InfoBarView
+    
+    /// A cancel bag to store subscriptions
     private let cancelBag = CancelBag()
 
+    /// Initializes a new info bar coordinator
+    /// - Parameters:
+    ///   - window: The window on which to display the info bar
+    ///   - viewModel: The view model that controls the info bar's state
+    ///   - viewBuilder: A closure that returns the view to display in the info bar
+    /// - Throws: `AlertWindowRouterCouldNotBeConstructed` if the window scene is not available
     public init(
         on window: UIWindow,
         viewModel: InfoBarViewModel<InfoBarContent>,
@@ -44,6 +67,8 @@ open class InfoBarCoordinator<InfoBarView: View, InfoBarContent>: ResponseRouter
         super.init(router: router)
     }
 
+    /// Starts the coordinator, creating and presenting the info bar view controller
+    /// - Parameter animated: Whether to animate the presentation
     open override func start(animated: Bool = true) {
         let view = viewBuilder()
 
