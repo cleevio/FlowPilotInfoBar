@@ -13,11 +13,22 @@ import UIKit
 import SwiftUI
 import Combine
 
+/// A view controller that manages the display and animation of an info bar
+/// The info bar is presented as an overlay with animations for showing and dismissing
 public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIViewController {
+    /// The hosting controller that wraps the SwiftUI info bar view
     let infoBarViewController: ClearBackgroundUIHostingController<InfoBarView>
+    
+    /// The frame in which the info bar will be displayed
     let frame: CGRect
+    
+    /// Closure that gets called when the info bar is dismissed
     var onDismiss: (() -> Void)?
+    
+    /// The view model that controls the info bar's state and behavior
     private let viewModel: InfoBarViewModel<InfoBarContent>
+    
+    /// The constraint that controls the position of the info bar (for animations)
     private var positionContstraint: NSLayoutConstraint!
 
     public override var prefersStatusBarHidden: Bool {
@@ -28,6 +39,20 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
         return UIApplication.shared.windows.first?.rootViewController?.preferredStatusBarStyle ?? .default
     }
 
+    /// Initializes a new info bar view controller
+    /// - Parameters:
+    ///   - view: The SwiftUI view to display in the info bar
+    ///   - frame: The frame in which to display the info bar
+    ///   - viewModel: The view model that controls the info bar's state
+    /// 
+    /// Example:
+    /// ```swift
+    /// let infoBarVC = InfoBarViewController(
+    ///     view: InfoBarView(viewModel: viewModel) { AlertView() },
+    ///     frame: window.frame,
+    ///     viewModel: viewModel
+    /// )
+    /// ```
     public init(
         view: InfoBarView,
         frame: CGRect,
@@ -74,6 +99,9 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
         }
     }
 
+    /// Shows the info bar with an animation
+    /// 
+    /// The animation respects accessibility settings for reduced motion
     public func showAlertView() {
         positionContstraint.constant = viewModel.positionConstrainConstant
 
@@ -92,6 +120,10 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
         }
     }
 
+    /// Dismisses the info bar with an animation
+    /// 
+    /// The animation respects accessibility settings for reduced motion
+    /// Calls the `onDismiss` closure when the animation completes
     public func dismissView() {
         positionContstraint.constant = viewModel.notVisiblePositionConstraintConstant(from: frame)
         if UIAccessibility.isReduceMotionEnabled {

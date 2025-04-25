@@ -11,10 +11,22 @@ import CleevioUI
 #if canImport(UIKit)
 import UIKit
 
+/// Error thrown when an alert window router could not be constructed
 struct AlertWindowRouterCouldNotBeConstructed: Error { }
 
 extension UIWindow {
-    func alertWindowRouter(calculatedPositionContraintConstant: CalculatePaddingClosure) throws -> (InfoBarWindowRouter, frame: CGRect, topPadding: CGFloat) {
+    /// Creates a window router for displaying info bars
+    /// - Parameter calculatedPositionContraintConstant: A closure that calculates the position constraint constant
+    /// - Returns: A tuple containing the router, the frame, and the top padding
+    /// - Throws: `AlertWindowRouterCouldNotBeConstructed` if the window scene is not available
+    /// 
+    /// Example:
+    /// ```swift
+    /// let (router, frame, topPadding) = try window.alertWindowRouter { window in
+    ///     return window.safeAreaInsets.top + 8
+    /// }
+    /// ```
+    func alertWindowRouter(calculatedPositionContraintConstant: (UIWindow) throws -> CGFloat) throws -> (InfoBarWindowRouter, frame: CGRect, topPadding: CGFloat) {
         guard let windowScene else {
             throw AlertWindowRouterCouldNotBeConstructed()
         }
