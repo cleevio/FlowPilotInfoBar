@@ -130,14 +130,17 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
 
     /// Dismisses the info bar with an animation
     /// 
-    /// The animation respects accessibility settings for reduced motion
-    /// Calls the `onDismiss` closure when the animation completes
+    /// The animation respects accessibility settings for reduced motion.
+    /// During the animation (or immediately if reduced motion is enabled), 
+    /// the status bar appearance is updated via setNeedsStatusBarAppearanceUpdate().
+    /// After the animation completes, the onDismiss closure is called.
     public func dismissView() {
         viewModel.updateConstraintsToHide(positionConstraints, frame: frame)
         
         if UIAccessibility.isReduceMotionEnabled {
             self.view.setNeedsLayout()
             self.view.layoutIfNeeded()
+            self.setNeedsStatusBarAppearanceUpdate()
             self.onDismiss?()
         } else {
             UIView.animate(
@@ -147,6 +150,7 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
             ) {
                 self.view.setNeedsLayout()
                 self.view.layoutIfNeeded()
+                self.setNeedsStatusBarAppearanceUpdate()
             } completion: { _ in
                 self.onDismiss?()
             }
