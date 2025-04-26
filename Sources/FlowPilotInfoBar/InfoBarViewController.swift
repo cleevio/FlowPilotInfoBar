@@ -143,6 +143,7 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
             self.setNeedsStatusBarAppearanceUpdate()
             self.onDismiss?()
         } else {
+            self.setNeedsStatusBarAppearanceUpdate()
             UIView.animate(
                 withDuration: 1/3,
                 delay: 0,
@@ -150,7 +151,6 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
             ) {
                 self.view.setNeedsLayout()
                 self.view.layoutIfNeeded()
-                self.setNeedsStatusBarAppearanceUpdate()
             } completion: { _ in
                 self.onDismiss?()
             }
