@@ -58,18 +58,27 @@ open class InfoBarViewModel<InfoBarContent>: ObservableObject {
     public var positionConstraintConstant: CGFloat = 0
     
     /// Published property indicating whether the info bar message is currently shown
+    /// 
+    /// This property is observed by the coordinator to trigger the dismissal animation.
+    /// It's set to true after the show animation completes and set to false when auto-dismissal
+    /// is triggered or when the user manually dismisses the info bar.
+    /// When this state changes, the status bar appearance may also need to be updated.
     @Published public var isMessageShown = false
 
     /// Determines whether the status bar should be hidden
     ///
-    /// By default, it inherits this property from the application's root view controller
+    /// By default, it inherits this property from the application's root view controller.
+    /// This property is used by the info bar view controller to control the status bar visibility
+    /// when the info bar is shown, and the status bar appearance is updated after animations.
     open var prefersStatusBarHidden: Bool {
         UIApplication.shared.windows.first?.rootViewController?.prefersStatusBarHidden ?? false
     }
 
     /// Determines the preferred status bar style
     ///
-    /// By default, it inherits this property from the application's root view controller
+    /// By default, it inherits this property from the application's root view controller.
+    /// This property is used by the info bar view controller to control the status bar style
+    /// when the info bar is shown, and the status bar appearance is updated after animations.
     open var preferredStatusBarStyle: UIStatusBarStyle {
         UIApplication.shared.windows.first?.rootViewController?.preferredStatusBarStyle ?? .default
     }
