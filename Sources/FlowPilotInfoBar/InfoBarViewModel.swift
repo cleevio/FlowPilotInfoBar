@@ -18,6 +18,11 @@ public struct ConstraintAnchors {
     
     /// Additional constraints for proper layout of the info bar
     var otherConstraints: [NSLayoutConstraint]
+
+    public init(positionConstraint: NSLayoutConstraint, otherConstraints: [NSLayoutConstraint]) {
+        self.positionConstraint = positionConstraint
+        self.otherConstraints = otherConstraints
+    }
 }
 
 @MainActor
