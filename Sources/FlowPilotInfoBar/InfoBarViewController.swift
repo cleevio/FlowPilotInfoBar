@@ -101,7 +101,9 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
 
     /// Shows the info bar with an animation
     /// 
-    /// The animation respects accessibility settings for reduced motion
+    /// The animation respects accessibility settings for reduced motion.
+    /// After the animation completes or immediately (if reduced motion is enabled),
+    /// it updates the isMessageShown state and refreshes the status bar appearance.
     public func showAlertView() {
         viewModel.updateConstraintsToShow(positionConstraints)
 
@@ -109,6 +111,7 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
             self.view.setNeedsLayout()
             self.view.layoutIfNeeded()
             viewModel.isMessageShown = true
+            self.setNeedsStatusBarAppearanceUpdate()
         } else {
             UIView.animate(
                 withDuration: 1/3,
@@ -120,8 +123,7 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(333)) {
                 self.viewModel.isMessageShown = true
-                self.view.setNeedsLayout()
-                self.view.layoutIfNeeded()
+                self.setNeedsStatusBarAppearanceUpdate()
             }
         }
     }
