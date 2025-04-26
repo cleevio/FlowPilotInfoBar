@@ -139,6 +139,10 @@ open class InfoBarViewModel<InfoBarContent>: ObservableObject {
     
     /// Updates position constraints to show the info bar
     /// - Parameter constraints: The position constraints to update
+    /// 
+    /// When this method is called during presentation, the InfoBarViewController will
+    /// also update the status bar appearance using setNeedsStatusBarAppearanceUpdate()
+    /// to reflect any changes based on the view controller's status bar preferences.
     open func updateConstraintsToShow(_ constraints: [NSLayoutConstraint]) {
         constraints.forEach { $0.constant = positionConstraintConstant }
     }
@@ -147,6 +151,10 @@ open class InfoBarViewModel<InfoBarContent>: ObservableObject {
     /// - Parameters:
     ///   - constraints: The position constraints to update
     ///   - frame: The frame of the window
+    /// 
+    /// When this method is called during dismissal, the InfoBarViewController will
+    /// also update the status bar appearance using setNeedsStatusBarAppearanceUpdate()
+    /// to reflect any changes based on the view controller's status bar preferences.
     open func updateConstraintsToHide(_ constraints: [NSLayoutConstraint], frame: CGRect) {
         let notVisibleConstant = notVisiblePositionConstraintConstant(from: frame)
         constraints.forEach { $0.constant = notVisibleConstant }
