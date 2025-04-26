@@ -120,6 +120,8 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(333)) {
                 self.viewModel.isMessageShown = true
+                self.view.setNeedsLayout()
+                self.view.layoutIfNeeded()
             }
         }
     }
