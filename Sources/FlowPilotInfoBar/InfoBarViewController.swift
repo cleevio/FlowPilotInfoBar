@@ -108,6 +108,7 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
         if UIAccessibility.isReduceMotionEnabled {
             self.view.setNeedsLayout()
             self.view.layoutIfNeeded()
+            viewModel.isMessageShown = true
         } else {
             UIView.animate(
                 withDuration: 1/3,
@@ -116,6 +117,9 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
             ) {
                 self.view.setNeedsLayout()
                 self.view.layoutIfNeeded()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(333)) {
+                self.viewModel.isMessageShown = true
             }
         }
     }
