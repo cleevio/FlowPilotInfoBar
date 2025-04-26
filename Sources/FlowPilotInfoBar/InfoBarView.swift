@@ -25,7 +25,7 @@ import SwiftUI
 /// }
 /// ```
 public struct InfoBarView<T: View, InfoBarContent>: View {
-    @ObservedObject private var viewModel: InfoBarViewModel<InfoBarContent>
+    private var viewModel: InfoBarViewModel<InfoBarContent>
     let view: T
 
     /// Initializes a new info bar view with the given view model and content builder

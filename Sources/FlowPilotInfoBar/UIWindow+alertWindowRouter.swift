@@ -16,7 +16,7 @@ struct AlertWindowRouterCouldNotBeConstructed: Error { }
 
 extension UIWindow {
     /// Creates a window router for displaying info bars
-    /// - Parameter calculatedPositionContraintConstant: A closure that calculates the position constraint constant
+    /// - Parameter calculatedPositionConstraintConstant: A closure that calculates the position constraint constant
     /// - Returns: A tuple containing the router, the frame, and the top padding
     /// - Throws: `AlertWindowRouterCouldNotBeConstructed` if the window scene is not available
     /// 
@@ -26,12 +26,12 @@ extension UIWindow {
     ///     return window.safeAreaInsets.top + 8
     /// }
     /// ```
-    func alertWindowRouter(calculatedPositionContraintConstant: (UIWindow) throws -> CGFloat) throws -> (InfoBarWindowRouter, frame: CGRect, topPadding: CGFloat) {
+    func alertWindowRouter(calculatedPositionConstraintConstant: (UIWindow) throws -> CGFloat) throws -> (InfoBarWindowRouter, frame: CGRect, topPadding: CGFloat) {
         guard let windowScene else {
             throw AlertWindowRouterCouldNotBeConstructed()
         }
 
-        return try (InfoBarWindowRouter(windowScene: windowScene), frame: self.frame, topPadding: calculatedPositionContraintConstant(self))
+        return try (InfoBarWindowRouter(windowScene: windowScene), frame: self.frame, topPadding: calculatedPositionConstraintConstant(self))
     }
 }
 #endif

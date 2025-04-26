@@ -57,12 +57,12 @@ open class InfoBarCoordinator<InfoBarView: View, InfoBarContent>: ResponseRouter
         viewModel: InfoBarViewModel<InfoBarContent>,
         @ViewBuilder viewBuilder: @escaping () -> InfoBarView
     ) throws {
-        let (router, frame, positionConstrainConstant) = try window.alertWindowRouter(calculatedPositionContraintConstant: viewModel.calculatedPositionContraintConstant(window:))
+        let (router, frame, positionConstraintConstant) = try window.alertWindowRouter(calculatedPositionConstraintConstant: viewModel.calculatedPositionConstraintConstant(window:))
 
         self.viewBuilder = viewBuilder
         self.viewModel = viewModel
 
-        viewModel.positionConstrainConstant = positionConstrainConstant
+        viewModel.positionConstraintConstant = positionConstraintConstant
         self.frame = frame
         super.init(router: router)
     }

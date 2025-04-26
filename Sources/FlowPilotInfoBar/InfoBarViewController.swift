@@ -28,15 +28,15 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
     /// The view model that controls the info bar's state and behavior
     private let viewModel: InfoBarViewModel<InfoBarContent>
     
-    /// The constraint that controls the position of the info bar (for animations)
-    private var positionContstraint: NSLayoutConstraint!
+    /// The constraints that control the position of the info bar (for animations)
+    private var positionConstraints: [NSLayoutConstraint] = []
 
     public override var prefersStatusBarHidden: Bool {
-        return UIApplication.shared.windows.first?.rootViewController?.prefersStatusBarHidden ?? false
+        viewModel.prefersStatusBarHidden
     }
 
     public override var preferredStatusBarStyle: UIStatusBarStyle {
-        return UIApplication.shared.windows.first?.rootViewController?.preferredStatusBarStyle ?? .default
+        viewModel.preferredStatusBarStyle
     }
 
     /// Initializes a new info bar view controller
@@ -84,10 +84,10 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
 
         infoBarViewController.view.translatesAutoresizingMaskIntoConstraints = false
         let constraints = viewModel.constraints(infoView: infoBarViewController.view, on: view, frame: frame)
-        positionContstraint = constraints.positionConstraint
+        positionConstraints = constraints.positionConstraints
 
         NSLayoutConstraint.activate(
-            [constraints.positionConstraint] + constraints.otherConstraints
+            constraints.positionConstraints + constraints.otherConstraints
         )
     }
 
@@ -103,7 +103,7 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
     /// 
     /// The animation respects accessibility settings for reduced motion
     public func showAlertView() {
-        positionContstraint.constant = viewModel.positionConstrainConstant
+        viewModel.updateConstraintsToShow(positionConstraints)
 
         if UIAccessibility.isReduceMotionEnabled {
             self.view.setNeedsLayout()
@@ -125,7 +125,8 @@ public final class InfoBarViewController<InfoBarView: View, InfoBarContent>: UIV
     /// The animation respects accessibility settings for reduced motion
     /// Calls the `onDismiss` closure when the animation completes
     public func dismissView() {
-        positionContstraint.constant = viewModel.notVisiblePositionConstraintConstant(from: frame)
+        viewModel.updateConstraintsToHide(positionConstraints, frame: frame)
+        
         if UIAccessibility.isReduceMotionEnabled {
             self.view.setNeedsLayout()
             self.view.layoutIfNeeded()
