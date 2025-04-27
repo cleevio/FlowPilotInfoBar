@@ -1,4 +1,4 @@
-# CleevioCore Changelog
+# FlowPilotInfoBar Changelog
 
 ## [3.0.0] - 2025-04-27
 - Swift6 language mode support
