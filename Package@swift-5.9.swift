@@ -1,9 +1,16 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
-let swiftSettings: [SwiftSetting] = []
+let swiftSettings: [SwiftSetting] = [
+// Only for development checks
+//    SwiftSetting.unsafeFlags([
+//        "-Xfrontend", "-strict-concurrency=complete",
+//        "-Xfrontend", "-warn-concurrency",
+//        "-Xfrontend", "-enable-actor-data-race-checks",
+//    ])
+]
 
 let package = Package(
     name: "FlowPilotInfoBar",
@@ -29,11 +36,10 @@ let package = Package(
                 "FlowPilot",
                 "CleevioUI"
             ],
-            swiftSettings: swiftSettings,
+            swiftSettings: swiftSettings
         ),
         .testTarget(
             name: "FlowPilotInfoBarTests",
             dependencies: ["FlowPilotInfoBar"]),
-    ],
-    swiftLanguageModes: [.v5, .v6]
+    ]
 )
